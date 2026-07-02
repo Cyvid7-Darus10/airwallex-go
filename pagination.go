@@ -26,6 +26,8 @@ type Page[T any] struct {
 	Items []T
 	// HasMore reports whether another page follows this one.
 	HasMore bool
+	// LastResponse describes the HTTP response this page was decoded from.
+	LastResponse *ResponseMetadata
 
 	fetch   func(ctx context.Context, pageNum int) (*Page[T], error)
 	pageNum int
@@ -50,15 +52,28 @@ func (p *Page[T]) All(ctx context.Context) iter.Seq2[T, error] {
 }
 
 // pageEnvelope is the uniform Airwallex list response shape. Items stay
-// raw so each one can be decoded with its raw JSON preserved.
+// raw so each one can be decoded with its raw JSON preserved; embedding
+// APIResource lets decodeResponse attach the page's response metadata.
 type pageEnvelope struct {
+	APIResource
 	HasMore bool              `json:"has_more"`
 	Items   []json.RawMessage `json:"items"`
 }
 
-// decodeItems decodes raw list items, preserving each item's raw JSON when
-// the type embeds APIResource.
-func decodeItems[T any](raws []json.RawMessage) ([]T, error) {
+// jsonList decodes a bare JSON array while still capturing response
+// metadata (used by endpoints like GET /balances/current).
+type jsonList struct {
+	APIResource
+	items []json.RawMessage
+}
+
+func (l *jsonList) UnmarshalJSON(data []byte) error {
+	return json.Unmarshal(data, &l.items)
+}
+
+// decodeItems decodes raw list items, preserving each item's raw JSON and
+// the page's response metadata when the type embeds APIResource.
+func decodeItems[T any](raws []json.RawMessage, meta *ResponseMetadata) ([]T, error) {
 	items := make([]T, 0, len(raws))
 	for _, raw := range raws {
 		var item T
@@ -67,6 +82,7 @@ func decodeItems[T any](raws []json.RawMessage) ([]T, error) {
 		}
 		if capturer, ok := any(&item).(rawCapturer); ok {
 			capturer.captureRaw(raw)
+			capturer.captureMeta(meta)
 		}
 		items = append(items, item)
 	}
@@ -100,15 +116,16 @@ func listPage[T any](ctx context.Context, c *Client, path string, params any) (*
 		if err := c.do(ctx, http.MethodGet, path, pageQuery, nil, &envelope); err != nil {
 			return nil, err
 		}
-		items, err := decodeItems[T](envelope.Items)
+		items, err := decodeItems[T](envelope.Items, envelope.LastResponse)
 		if err != nil {
 			return nil, err
 		}
 		return &Page[T]{
-			Items:   items,
-			HasMore: envelope.HasMore,
-			fetch:   fetch,
-			pageNum: pageNum,
+			Items:        items,
+			HasMore:      envelope.HasMore,
+			LastResponse: envelope.LastResponse,
+			fetch:        fetch,
+			pageNum:      pageNum,
 		}, nil
 	}
 	return fetch(ctx, start)

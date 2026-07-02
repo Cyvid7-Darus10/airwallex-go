@@ -9,6 +9,26 @@ patch releases never change behavior.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-02
+
+### Added
+
+- `LastResponse` metadata (status code, `x-request-id`, headers) on every
+  resource, every list item, and every `Page` — parity with stripe-go's
+  `LastResponse`.
+- `WithLogger(*slog.Logger)` option: opt-in debug logging of request
+  outcomes, retries, and token refreshes. Credentials, tokens, headers, and
+  bodies are never logged.
+- `Client.RequestWithHeaders`: the escape hatch can now send per-call
+  headers (parity with the Python SDK's `client.request(headers=...)`);
+  the `Authorization` header always remains SDK-managed.
+- Runnable examples on pkg.go.dev for the client, payouts, auto-pagination,
+  error handling, the escape hatch, and webhook verification.
+- CI: `govulncheck` job, and the test matrix now includes Go 1.23 (the
+  declared minimum) alongside the last three releases.
+- Lint: revive `exported`/`package-comments` rules enforce doc comments on
+  the entire public API.
+
 ## [0.1.0] - 2026-07-02
 
 ### Added
@@ -49,5 +69,6 @@ patch releases never change behavior.
   loopback), credential redaction in `String()`/`GoString()`, typed errors
   for non-JSON responses, custom `http.Client` support without mutation.
 
-[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Cyvid7-Darus10/airwallex-go/releases/tag/v0.1.0

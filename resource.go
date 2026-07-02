@@ -4,25 +4,48 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"reflect"
 	"strconv"
 )
 
+// ResponseMetadata describes the HTTP response a resource was decoded from.
+// Use RequestID when contacting Airwallex support about a specific call.
+type ResponseMetadata struct {
+	// StatusCode is the HTTP status code of the response.
+	StatusCode int
+	// RequestID is the Airwallex x-request-id header.
+	RequestID string
+	// Header holds the response headers.
+	Header http.Header
+}
+
 // APIResource is embedded in every response type. It preserves the raw JSON
 // body of the response, so fields added by newer Airwallex API versions are
-// never lost even before this SDK grows typed accessors for them.
+// never lost even before this SDK grows typed accessors for them, and
+// records which HTTP response the resource came from.
 type APIResource struct {
 	// Raw is the exact JSON the API returned for this resource.
 	Raw json.RawMessage `json:"-"`
+	// LastResponse describes the HTTP response this resource was decoded
+	// from. For items inside a list it reflects the page's response.
+	LastResponse *ResponseMetadata `json:"-"`
 }
 
 func (r *APIResource) captureRaw(body []byte) {
 	r.Raw = json.RawMessage(append([]byte(nil), body...))
 }
 
+func (r *APIResource) captureMeta(meta *ResponseMetadata) {
+	r.LastResponse = meta
+}
+
 // rawCapturer is implemented by anything embedding APIResource.
-type rawCapturer interface{ captureRaw([]byte) }
+type rawCapturer interface {
+	captureRaw([]byte)
+	captureMeta(*ResponseMetadata)
+}
 
 // Params carries fields shared by request-parameter structs. Embed values
 // in ExtraParams to send body fields this SDK has no typed field for yet;

@@ -142,6 +142,14 @@ func (c *Client) Request(ctx context.Context, method, path string, params url.Va
 	return c.do(ctx, method, path, params, body, out)
 }
 
+// RequestWithHeaders is Request with additional headers applied to the
+// call (e.g. a one-off x-api-version). Caller headers override the SDK
+// defaults on collision; the Authorization header is always managed by the
+// SDK.
+func (c *Client) RequestWithHeaders(ctx context.Context, method, path string, params url.Values, headers http.Header, body, out any) error {
+	return c.doWithHeaders(ctx, method, path, params, headers, body, out)
+}
+
 // String implements fmt.Stringer with credentials redacted.
 func (c *Client) String() string {
 	return fmt.Sprintf("airwallex.Client{environment:%q baseURL:%q}",

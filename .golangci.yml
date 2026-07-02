@@ -15,6 +15,29 @@ linters:
     gosec:
       excludes:
         - G404 # math/rand is used only for retry jitter, never for secrets
+    revive:
+      rules:
+        # Keep revive's defaults and additionally require doc comments on
+        # every exported symbol — pkg.go.dev is part of the product.
+        - name: exported
+        - name: package-comments
+        - name: blank-imports
+        - name: context-as-argument
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: if-return
+        - name: increment-decrement
+        - name: var-naming
+        - name: var-declaration
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: redefines-builtin-id
   exclusions:
     rules:
       - path: _test\.go

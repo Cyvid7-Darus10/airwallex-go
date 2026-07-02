@@ -29,12 +29,23 @@ jobs:
         with:
           version: latest
 
+  vulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+      - name: govulncheck
+        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        go: ["1.24", "1.25", "1.26"]
+        # Last three releases plus the declared minimum in go.mod.
+        go: ["1.23", "1.24", "1.25", "1.26"]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v6

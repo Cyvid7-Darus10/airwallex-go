@@ -21,6 +21,8 @@ Airwallex's only official server-side SDK is Node.js. This library brings the sa
 - **Auto-pagination** — walk every page with one `range` loop (Go 1.23 iterators)
 - **Webhook signature verification** with constant-time comparison and replay protection
 - **Typed errors** — `*airwallex.Error` carries the HTTP status, Airwallex error `code`, `source`, and `x-request-id`; transport failures are a distinct `*airwallex.ConnectionError`
+- **Response metadata everywhere** — every resource and page exposes `LastResponse` (status, `x-request-id`, headers), like stripe-go
+- **Opt-in structured logging** via `log/slog` (`WithLogger`) — request outcomes, retries, and token refreshes at debug level, with credentials never logged
 
 ## Installation
 
@@ -196,6 +198,23 @@ if err != nil {
 
 Rate limits (429) and transient 5xx are retried automatically before an error ever reaches you.
 
+### Response metadata
+
+Every resource and every page records the HTTP response it came from — quote `RequestID` when contacting Airwallex support:
+
+```go
+transfer, _ := client.Transfers.Retrieve(ctx, "tra_1")
+fmt.Println(transfer.LastResponse.StatusCode, transfer.LastResponse.RequestID)
+```
+
+### Logging
+
+Pass any `*slog.Logger` to see request outcomes, retries, and token refreshes at debug level. Only method, path, status, attempt, delay, and request id are logged — never credentials, tokens, headers, or bodies:
+
+```go
+client, err := airwallex.New(airwallex.WithLogger(slog.Default()))
+```
+
 ### Calling endpoints the SDK doesn't wrap yet
 
 Every list-params struct accepts extra query params via `ListParams.ExtraQuery`, every body-params struct accepts extra fields via `Params.ExtraParams`, and the client exposes a raw escape hatch with auth, retries, and error mapping intact:
@@ -204,7 +223,13 @@ Every list-params struct accepts extra query params via `ListParams.ExtraQuery`,
 var disputes json.RawMessage
 err := client.Request(ctx, "GET", "/api/v1/pa/payment_disputes",
     url.Values{"status": {"OPEN"}}, nil, &disputes)
+
+// Per-call headers (e.g. a one-off x-api-version); Authorization stays SDK-managed
+err = client.RequestWithHeaders(ctx, "GET", "/api/v1/pa/payment_disputes",
+    nil, http.Header{"x-api-version": {"2020-01-01"}}, nil, &disputes)
 ```
+
+Note on zero values: params structs use `omitempty`, so a `0` amount or `false` flag is omitted from the request. In the rare case you must send an explicit zero, put it in `ExtraParams`/`ExtraQuery`.
 
 ### Forward-compatible responses
 

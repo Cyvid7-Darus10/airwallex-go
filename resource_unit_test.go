@@ -121,7 +121,7 @@ func TestQueryValueFallback(t *testing.T) {
 }
 
 func TestDecodeItemsError(t *testing.T) {
-	if _, err := decodeItems[Transfer]([]json.RawMessage{json.RawMessage(`"not an object"`)}); err == nil {
+	if _, err := decodeItems[Transfer]([]json.RawMessage{json.RawMessage(`"not an object"`)}, nil); err == nil {
 		t.Fatal("expected decode error")
 	}
 }

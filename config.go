@@ -2,6 +2,7 @@ package airwallex
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -63,6 +64,7 @@ type config struct {
 	timeout     time.Duration
 	maxRetries  int
 	httpClient  *http.Client
+	logger      *slog.Logger
 }
 
 // String implements fmt.Stringer with the API key redacted, so accidental
@@ -133,6 +135,14 @@ func WithMaxRetries(maxRetries int) Option {
 // mutates or closes the supplied client.
 func WithHTTPClient(httpClient *http.Client) Option {
 	return func(c *config) { c.httpClient = httpClient }
+}
+
+// WithLogger enables debug logging of request outcomes, retries, and token
+// refreshes through the given structured logger. Only non-sensitive facts
+// (method, path, status, attempt, request id, delay) are logged — never
+// credentials, tokens, headers, or bodies. Logging is off by default.
+func WithLogger(logger *slog.Logger) Option {
+	return func(c *config) { c.logger = logger }
 }
 
 var insecureHosts = map[string]bool{"localhost": true, "127.0.0.1": true, "::1": true}

@@ -2,7 +2,6 @@ package airwallex
 
 import (
 	"context"
-	"encoding/json"
 	"iter"
 )
 
@@ -49,11 +48,11 @@ type BalancesService struct{ client *Client }
 
 // Current returns the wallet balance in every currency.
 func (s *BalancesService) Current(ctx context.Context) ([]Balance, error) {
-	var raws []json.RawMessage
-	if err := s.client.get(ctx, balancesCurrentPath, nil, &raws); err != nil {
+	var list jsonList
+	if err := s.client.get(ctx, balancesCurrentPath, nil, &list); err != nil {
 		return nil, err
 	}
-	return decodeItems[Balance](raws)
+	return decodeItems[Balance](list.items, list.LastResponse)
 }
 
 // History returns one page of ledger movements, filtered by params (may be

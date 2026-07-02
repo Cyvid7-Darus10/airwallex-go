@@ -15,7 +15,7 @@ import (
 )
 
 // Version is the SDK release, sent in the User-Agent header.
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // parseRetryAfter parses a Retry-After header in either delta-seconds or
 // HTTP-date (RFC 7231) form. It returns false when the value is unusable.
@@ -77,6 +77,10 @@ func sleepCtx(ctx context.Context, d time.Duration) error {
 // The request body bytes are marshalled once and re-sent verbatim, so any
 // request_id inside is identical across retries (Airwallex idempotency).
 func (c *Client) do(ctx context.Context, method, path string, query url.Values, body, out any) error {
+	return c.doWithHeaders(ctx, method, path, query, nil, body, out)
+}
+
+func (c *Client) doWithHeaders(ctx context.Context, method, path string, query url.Values, extraHeaders http.Header, body, out any) error {
 	requestURL := c.config.baseURL + path
 	if len(query) > 0 {
 		requestURL += "?" + query.Encode()
@@ -112,8 +116,17 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 		if err != nil {
 			return err
 		}
+		for key, values := range extraHeaders {
+			canonical := http.CanonicalHeaderKey(key)
+			if canonical == "Authorization" {
+				continue // the bearer token is always managed by the SDK
+			}
+			req.Header[canonical] = values
+		}
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
+			c.logDebug(ctx, "request failed", "method", method, "path", path,
+				"attempt", attempt, "error", err.Error())
 			if attempt < c.config.maxRetries {
 				if sleepErr := sleepCtx(ctx, retryDelay(attempt, nil, time.Now())); sleepErr != nil {
 					return &ConnectionError{Message: "request cancelled while backing off", Err: sleepErr}
@@ -143,13 +156,21 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 			return &ConnectionError{Message: "reading response body", Err: readErr}
 		}
 
+		c.logDebug(ctx, "request completed", "method", method, "path", path,
+			"status", resp.StatusCode, "attempt", attempt,
+			"request_id", resp.Header.Get("x-request-id"))
 		if resp.StatusCode == http.StatusUnauthorized && !authRetried {
+			c.logDebug(ctx, "401 received; refreshing token and retrying once",
+				"method", method, "path", path)
 			c.tokens.invalidate()
 			authRetried = true
 			continue
 		}
 		if isRetryableStatus(resp.StatusCode) && attempt < c.config.maxRetries {
-			if sleepErr := sleepCtx(ctx, retryDelay(attempt, resp, time.Now())); sleepErr != nil {
+			delay := retryDelay(attempt, resp, time.Now())
+			c.logDebug(ctx, "retrying after transient status", "method", method,
+				"path", path, "status", resp.StatusCode, "attempt", attempt, "delay", delay)
+			if sleepErr := sleepCtx(ctx, delay); sleepErr != nil {
 				return &ConnectionError{Message: "request cancelled while backing off", Err: sleepErr}
 			}
 			attempt++
@@ -205,10 +226,19 @@ func (c *Client) newRequest(ctx context.Context, method, requestURL string, body
 	return req, nil
 }
 
+// logDebug emits a debug log line when a logger is configured. Only
+// non-sensitive request facts are ever logged — never headers, bodies, or
+// credentials.
+func (c *Client) logDebug(ctx context.Context, msg string, args ...any) {
+	if c.config.logger != nil {
+		c.config.logger.DebugContext(ctx, "airwallex: "+msg, args...)
+	}
+}
+
 // decodeResponse unmarshals a 2xx body into out. Non-JSON bodies (e.g. HTML
 // from an intercepting proxy) produce a typed *Error, never a raw
-// json.SyntaxError. When out embeds APIResource, the raw body is preserved
-// so no response data is ever lost.
+// json.SyntaxError. When out embeds APIResource, the raw body and the
+// response metadata are preserved so no response data is ever lost.
 func decodeResponse(resp *http.Response, body []byte, out any) error {
 	if out == nil || len(body) == 0 {
 		return nil
@@ -224,6 +254,11 @@ func decodeResponse(resp *http.Response, body []byte, out any) error {
 	}
 	if holder, ok := out.(rawCapturer); ok {
 		holder.captureRaw(body)
+		holder.captureMeta(&ResponseMetadata{
+			StatusCode: resp.StatusCode,
+			RequestID:  resp.Header.Get("x-request-id"),
+			Header:     resp.Header.Clone(),
+		})
 	}
 	return nil
 }
