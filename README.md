@@ -80,13 +80,14 @@ fmt.Println(transfer.ID, transfer.Status)
 rate, err := client.Rates.Current(ctx, &airwallex.RateCurrentParams{
     BuyCurrency: "USD", SellCurrency: "SGD", BuyAmount: 1000,
 })
-fmt.Println(rate.ClientRate)
+fmt.Println(rate.Rate)
 
 conversion, err := client.Conversions.Create(ctx, &airwallex.ConversionCreateParams{
     BuyCurrency:   "USD",
     SellCurrency:  "SGD",
     BuyAmount:     1000,
     TermAgreement: true,
+    Reason:        "hedging",
 })
 ```
 
@@ -140,7 +141,7 @@ for beneficiary, err := range client.Beneficiaries.All(ctx, nil) {
     if err != nil {
         return err
     }
-    fmt.Println(beneficiary.BeneficiaryID, beneficiary.Nickname)
+    fmt.Println(beneficiary.EffectiveID(), beneficiary.Nickname)
 }
 
 // Or drive pages manually
@@ -266,6 +267,14 @@ client, err := airwallex.New(airwallex.WithOnBehalfOf("acct_connected_account_id
 client, err := airwallex.New(airwallex.WithAPIVersion("2024-08-07")) // sets x-api-version on every request
 ```
 
+## Examples
+
+Runnable programs live in [`examples/`](examples/) — payouts, FX, and a webhook-verification server:
+
+```bash
+AIRWALLEX_CLIENT_ID=... AIRWALLEX_API_KEY=... go run ./examples/payout
+```
+
 ## Resources covered
 
 | Resource | Methods |
@@ -311,9 +320,8 @@ This SDK is **beta** software:
 ## Development
 
 ```bash
-go test -race ./...      # run tests
-go vet ./...             # static analysis
-golangci-lint run        # lint
+make check    # gofmt + vet + golangci-lint + race tests (what CI runs)
+make cover    # coverage report
 ```
 
 ## Disclaimer

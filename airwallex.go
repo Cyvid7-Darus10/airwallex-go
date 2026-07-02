@@ -1,22 +1,3 @@
-// Package airwallex is an unofficial Go SDK for the Airwallex API —
-// payouts, FX, balances, global accounts, payment acceptance, issuing,
-// and webhooks.
-//
-//	client, err := airwallex.New(
-//	    airwallex.WithClientID("..."), // or AIRWALLEX_CLIENT_ID
-//	    airwallex.WithAPIKey("..."),   // or AIRWALLEX_API_KEY
-//	    airwallex.WithEnv(airwallex.Demo),
-//	)
-//	balances, err := client.Balances.Current(ctx)
-//
-// Authentication happens lazily on the first request; the bearer token is
-// cached and refreshed automatically before it expires. Transient failures
-// (408/429/5xx/network) are retried with full-jitter exponential backoff,
-// and money-moving creates carry an auto-generated request_id so retries
-// are idempotent.
-//
-// This library is not affiliated with, endorsed by, or supported by
-// Airwallex Pty Ltd.
 package airwallex
 
 import (
