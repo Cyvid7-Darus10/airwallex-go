@@ -4,7 +4,6 @@
 
 [![CI](https://github.com/Cyvid7-Darus10/airwallex-go/actions/workflows/ci.yml/badge.svg)](https://github.com/Cyvid7-Darus10/airwallex-go/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Cyvid7-Darus10/airwallex-go.svg)](https://pkg.go.dev/github.com/Cyvid7-Darus10/airwallex-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Cyvid7-Darus10/airwallex-go)](https://goreportcard.com/report/github.com/Cyvid7-Darus10/airwallex-go)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status: Beta](https://img.shields.io/badge/status-beta-orange.svg)](#status)
 
