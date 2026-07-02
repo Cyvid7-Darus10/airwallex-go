@@ -6,9 +6,8 @@ import (
 )
 
 const (
-	conversionsBasePath  = "/api/v1/conversions"
-	ratesCurrentPath     = "/api/v1/fx/rates/current"
-	conversionAmendments = "/api/v1/conversion_amendments"
+	conversionsBasePath = "/api/v1/conversions"
+	ratesCurrentPath    = "/api/v1/fx/rates/current"
 )
 
 // Conversion is a booked FX conversion (/api/v1/conversions).

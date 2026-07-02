@@ -7,27 +7,82 @@ import (
 
 const globalAccountsBasePath = "/api/v1/global_accounts"
 
+// GlobalAccountInstitution describes the bank holding a global account
+// (current API versions).
+type GlobalAccountInstitution struct {
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	City    string `json:"city"`
+	ZipCode string `json:"zip_code"`
+}
+
+// GlobalAccountRoutingCode is one routing identifier of a global account
+// feature (e.g. bank_code, branch_code).
+type GlobalAccountRoutingCode struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+// GlobalAccountFeature describes one capability of a global account
+// (current API versions), e.g. SGD LOCAL deposits via FAST.
+type GlobalAccountFeature struct {
+	Currency            string                     `json:"currency"`
+	TransferMethod      string                     `json:"transfer_method"`
+	Type                string                     `json:"type"`
+	LocalClearingSystem string                     `json:"local_clearing_system"`
+	RoutingCodes        []GlobalAccountRoutingCode `json:"routing_codes"`
+	AliasTypes          []string                   `json:"alias_types"`
+}
+
 // GlobalAccount is a local currency account for collecting funds
 // (/api/v1/global_accounts).
+//
+// Current API versions describe the bank via Institution and the
+// currencies/rails via RequiredFeatures / SupportedFeatures; older
+// versions use the flat Currency / InstitutionName / ClearingSystems
+// fields. All are typed.
 type GlobalAccount struct {
 	APIResource
-	ID                 string         `json:"id"`
-	RequestID          string         `json:"request_id"`
-	AccountName        string         `json:"account_name"`
-	AccountNumber      string         `json:"account_number"`
+	ID            string `json:"id"`
+	RequestID     string `json:"request_id"`
+	AccountName   string `json:"account_name"`
+	AccountNumber string `json:"account_number"`
+	AccountType   string `json:"account_type"`
+	CountryCode   string `json:"country_code"`
+	NickName      string `json:"nick_name"`
+	Status        string `json:"status"`
+
+	Institution       *GlobalAccountInstitution `json:"institution"`
+	RequiredFeatures  []GlobalAccountFeature    `json:"required_features"`
+	SupportedFeatures []GlobalAccountFeature    `json:"supported_features"`
+
+	// Legacy fields returned by older API versions.
 	AccountRoutingType string         `json:"account_routing_type"`
 	AccountRoutingVal  string         `json:"account_routing_value"`
 	BranchCode         string         `json:"branch_code"`
 	ClearingSystems    []string       `json:"clearing_systems"`
-	CountryCode        string         `json:"country_code"`
 	Currency           string         `json:"currency"`
 	InstitutionName    string         `json:"institution_name"`
-	NickName           string         `json:"nick_name"`
 	PaymentMethods     []string       `json:"payment_methods"`
-	Status             string         `json:"status"`
 	SwiftCode          string         `json:"swift_code"`
 	RegisteredEmail    string         `json:"registered_email"`
 	AlternateAccountID map[string]any `json:"alternate_account_identifiers"`
+}
+
+// PrimaryCurrency returns the account's currency regardless of which API
+// version produced the response: the flat Currency field when present,
+// otherwise the first required feature's currency.
+func (g *GlobalAccount) PrimaryCurrency() string {
+	if g.Currency != "" {
+		return g.Currency
+	}
+	if len(g.RequiredFeatures) > 0 {
+		return g.RequiredFeatures[0].Currency
+	}
+	if len(g.SupportedFeatures) > 0 {
+		return g.SupportedFeatures[0].Currency
+	}
+	return ""
 }
 
 // GlobalAccountTransaction is one transaction received into a global

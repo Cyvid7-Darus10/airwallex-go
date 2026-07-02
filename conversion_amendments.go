@@ -5,6 +5,8 @@ import (
 	"iter"
 )
 
+const conversionAmendmentsBasePath = "/api/v1/conversion_amendments"
+
 // AmendmentCharge is one charge or credit resulting from an amendment.
 type AmendmentCharge struct {
 	Amount       float64 `json:"amount"`
@@ -74,7 +76,7 @@ func (s *ConversionAmendmentsService) Create(ctx context.Context, params *Conver
 		return nil, err
 	}
 	amendment := &ConversionAmendment{}
-	if err := s.client.post(ctx, conversionAmendments+"/create", body, amendment); err != nil {
+	if err := s.client.post(ctx, conversionAmendmentsBasePath+"/create", body, amendment); err != nil {
 		return nil, err
 	}
 	return amendment, nil
@@ -89,7 +91,7 @@ func (s *ConversionAmendmentsService) Quote(ctx context.Context, params *Convers
 		return nil, err
 	}
 	quote := &ConversionAmendmentQuote{}
-	if err := s.client.post(ctx, conversionAmendments+"/quote", body, quote); err != nil {
+	if err := s.client.post(ctx, conversionAmendmentsBasePath+"/quote", body, quote); err != nil {
 		return nil, err
 	}
 	return quote, nil
@@ -98,7 +100,7 @@ func (s *ConversionAmendmentsService) Quote(ctx context.Context, params *Convers
 // Retrieve fetches a single amendment by id.
 func (s *ConversionAmendmentsService) Retrieve(ctx context.Context, conversionAmendmentID string) (*ConversionAmendment, error) {
 	amendment := &ConversionAmendment{}
-	if err := s.client.get(ctx, conversionAmendments+"/"+pathEscape(conversionAmendmentID), nil, amendment); err != nil {
+	if err := s.client.get(ctx, conversionAmendmentsBasePath+"/"+pathEscape(conversionAmendmentID), nil, amendment); err != nil {
 		return nil, err
 	}
 	return amendment, nil
@@ -106,7 +108,7 @@ func (s *ConversionAmendmentsService) Retrieve(ctx context.Context, conversionAm
 
 // List returns one page of amendments for a conversion.
 func (s *ConversionAmendmentsService) List(ctx context.Context, params *ConversionAmendmentListParams) (*Page[ConversionAmendment], error) {
-	return listPage[ConversionAmendment](ctx, s.client, conversionAmendments, params)
+	return listPage[ConversionAmendment](ctx, s.client, conversionAmendmentsBasePath, params)
 }
 
 // All iterates every amendment across every page, fetching lazily.

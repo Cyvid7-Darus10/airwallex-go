@@ -9,6 +9,28 @@ patch releases never change behavior.
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-07-02
+
+### Added
+
+- `GlobalAccount` now types the structure current API versions return:
+  `Institution`, `RequiredFeatures` / `SupportedFeatures` (with routing
+  codes), `AccountType`, plus a `PrimaryCurrency()` helper spanning old
+  and new shapes. Legacy flat fields remain.
+- Four more runnable examples — `collect-funds`, `payment-acceptance`,
+  `issuing`, and `patterns` (typed errors, metadata, pagination, logging,
+  escape hatch). All seven examples are verified against the live demo
+  API, which also live-validated the issuing and payment-acceptance
+  create flows.
+
+## [0.2.3] - 2026-07-02
+
+### Added
+
+- Package documentation (`doc.go`), runnable examples under `examples/`
+  (payout, FX, webhook server), `Makefile`, PR template, and CODEOWNERS.
+  No behavior changes.
+
 ## [0.2.2] - 2026-07-02
 
 ### Added
@@ -99,7 +121,9 @@ conversion (FX quote → conversion → SETTLED) and the deposit lifecycle.
   loopback), credential redaction in `String()`/`GoString()`, typed errors
   for non-JSON responses, custom `http.Client` support without mutation.
 
-[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.3...v0.2.4
+[0.2.3]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.1.0...v0.2.0
