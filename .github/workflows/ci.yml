@@ -51,8 +51,12 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go }}
+      - name: Build everything (including examples)
+        run: go build ./...
       - name: Test (race detector + coverage)
-        run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
+        # Coverage is measured on the SDK packages; examples are
+        # documentation programs with no tests and would dilute the total.
+        run: go test -race -covermode=atomic -coverprofile=coverage.out . ./webhooks
       - name: Coverage gate (>= 85%)
         run: |
           total=$(go tool cover -func=coverage.out | tail -1 | awk '{print substr($3, 1, length($3)-1)}')

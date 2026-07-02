@@ -8,8 +8,8 @@ test: ## Run tests with the race detector
 	go test -race ./...
 
 .PHONY: cover
-cover: ## Run tests and print total coverage
-	go test -race -covermode=atomic -coverprofile=coverage.out ./...
+cover: ## Run tests and print total SDK coverage (examples excluded)
+	go test -race -covermode=atomic -coverprofile=coverage.out . ./webhooks
 	go tool cover -func=coverage.out | tail -1
 
 .PHONY: lint
