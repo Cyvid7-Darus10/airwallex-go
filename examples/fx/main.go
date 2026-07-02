@@ -23,7 +23,18 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
+	// Airwallex versions endpoints independently: on many accounts the
+	// indicative-rates endpoint exists on the account-default version,
+	// while conversions require pinning 2024-01-31 or later. Use one
+	// client per version (clients are cheap; each manages its own token).
 	client, err := airwallex.New(airwallex.WithEnv(airwallex.Demo))
+	if err != nil {
+		return err
+	}
+	pinned, err := airwallex.New(
+		airwallex.WithEnv(airwallex.Demo),
+		airwallex.WithAPIVersion("2024-01-31"),
+	)
 	if err != nil {
 		return err
 	}
@@ -44,10 +55,10 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("quote: %w", err)
 	}
-	fmt.Printf("locked quote %s at %v until %s\n", quote.QuoteID, quote.ClientRate, quote.ExpiresAt)
+	fmt.Printf("locked quote %s at %v (valid %s)\n", quote.QuoteID, quote.ClientRate, quote.Validity)
 
 	// Execute a conversion (demo funds).
-	conversion, err := client.Conversions.Create(ctx, &airwallex.ConversionCreateParams{
+	conversion, err := pinned.Conversions.Create(ctx, &airwallex.ConversionCreateParams{
 		BuyCurrency:   "USD",
 		SellCurrency:  "SGD",
 		SellAmount:    100,
