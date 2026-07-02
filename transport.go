@@ -15,7 +15,7 @@ import (
 )
 
 // Version is the SDK release, sent in the User-Agent header.
-const Version = "0.2.0"
+const Version = "0.2.1"
 
 // parseRetryAfter parses a Retry-After header in either delta-seconds or
 // HTTP-date (RFC 7231) form. It returns false when the value is unusable.

@@ -9,6 +9,17 @@ patch releases never change behavior.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-02
+
+### Fixed
+
+- `RateQuote` now types the fields current API versions actually return
+  (`rate`, `buy_currency`, `buy_amount`, `sell_currency`, `sell_amount`,
+  `conversion_date`, `created_at`), verified against the live demo API.
+  The legacy `client_rate`/`mid_rate` fields remain for older API versions.
+- `FxQuote` now types `quote_id` (current API versions) alongside the
+  legacy `id`.
+
 ## [0.2.0] - 2026-07-02
 
 ### Added
@@ -69,6 +80,7 @@ patch releases never change behavior.
   loopback), credential redaction in `String()`/`GoString()`, typed errors
   for non-JSON responses, custom `http.Client` support without mutation.
 
-[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Cyvid7-Darus10/airwallex-go/releases/tag/v0.1.0

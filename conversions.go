@@ -42,9 +42,19 @@ type Conversion struct {
 
 // RateQuote is an indicative FX rate (GET /api/v1/fx/rates/current). No
 // funds move; use FxQuotes to lock a rate.
+//
+// Current API versions return Rate (with per-level detail in RateDetails);
+// older versions return ClientRate/MidRate. Both are typed here.
 type RateQuote struct {
 	APIResource
 	CurrencyPair         string           `json:"currency_pair"`
+	Rate                 float64          `json:"rate"`
+	BuyCurrency          string           `json:"buy_currency"`
+	BuyAmount            float64          `json:"buy_amount"`
+	SellCurrency         string           `json:"sell_currency"`
+	SellAmount           float64          `json:"sell_amount"`
+	ConversionDate       string           `json:"conversion_date"`
+	CreatedAt            string           `json:"created_at"`
 	ClientRate           float64          `json:"client_rate"`
 	MidRate              float64          `json:"mid_rate"`
 	DealtCurrency        string           `json:"dealt_currency"`

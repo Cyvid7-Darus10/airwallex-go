@@ -9,7 +9,10 @@ const fxQuotesBasePath = "/api/v1/fx/quotes"
 // conversion at that rate.
 type FxQuote struct {
 	APIResource
+	// ID is the quote id; current API versions return it as quote_id
+	// (see QuoteID), older ones as id.
 	ID        string `json:"id"`
+	QuoteID   string `json:"quote_id"`
 	RequestID string `json:"request_id"`
 	Status    string `json:"status"`
 
