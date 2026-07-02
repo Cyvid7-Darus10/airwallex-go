@@ -154,6 +154,15 @@ func TestSleepCtx(t *testing.T) {
 	}
 }
 
+func TestBeneficiaryEffectiveID(t *testing.T) {
+	modern := &Beneficiary{ID: "id_new"}
+	legacy := &Beneficiary{BeneficiaryID: "id_old"}
+	both := &Beneficiary{ID: "id_new", BeneficiaryID: "id_old"}
+	if modern.EffectiveID() != "id_new" || legacy.EffectiveID() != "id_old" || both.EffectiveID() != "id_new" {
+		t.Fatalf("EffectiveID: %q %q %q", modern.EffectiveID(), legacy.EffectiveID(), both.EffectiveID())
+	}
+}
+
 func TestClassifyForRetry(t *testing.T) {
 	tests := []struct {
 		err  error

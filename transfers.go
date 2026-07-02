@@ -142,9 +142,11 @@ func (s *TransfersService) Cancel(ctx context.Context, transferID string) (*Tran
 }
 
 // Validate validates a transfer payload without creating it, returning the
-// raw validation result from Airwallex.
+// raw validation result from Airwallex. Current API versions require a
+// request_id even to validate, so one is generated when params.RequestID
+// is empty (nothing is executed either way).
 func (s *TransfersService) Validate(ctx context.Context, params *TransferCreateParams) (json.RawMessage, error) {
-	body, err := bodyMap(params)
+	body, err := idempotentBody(params)
 	if err != nil {
 		return nil, err
 	}

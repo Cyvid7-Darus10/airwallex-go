@@ -38,13 +38,28 @@ type BeneficiaryDetails struct {
 }
 
 // Beneficiary is a saved payout recipient (/api/v1/beneficiaries).
+//
+// Current API versions return the identifier as id and the methods as
+// transfer_methods; older versions use beneficiary_id / payment_methods.
+// All are typed. Use the EffectiveID helper to get whichever is set.
 type Beneficiary struct {
 	APIResource
+	ID              string              `json:"id"`
 	BeneficiaryID   string              `json:"beneficiary_id"`
 	Nickname        string              `json:"nickname"`
 	PayerEntityType string              `json:"payer_entity_type"`
+	TransferMethods []string            `json:"transfer_methods"`
 	PaymentMethods  []string            `json:"payment_methods"`
 	Beneficiary     *BeneficiaryDetails `json:"beneficiary"`
+}
+
+// EffectiveID returns the beneficiary identifier regardless of which API
+// version produced the response.
+func (b *Beneficiary) EffectiveID() string {
+	if b.ID != "" {
+		return b.ID
+	}
+	return b.BeneficiaryID
 }
 
 // BeneficiaryCreateParams are the parameters for

@@ -9,6 +9,25 @@ patch releases never change behavior.
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-07-02
+
+### Added
+
+- `Error.Raw` exposes the full error response body, so validation
+  failures' per-field `errors` object is available beyond `Message`.
+- `Beneficiary.ID` / `Beneficiary.TransferMethods` (current API versions
+  return these instead of `beneficiary_id` / `payment_methods`) and a
+  `Beneficiary.EffectiveID()` helper covering both.
+- `Deposit.Type` and `Deposit.SettledAt`.
+
+### Fixed
+
+- `Transfers.Validate` now auto-generates a `request_id` — current API
+  versions require one even to validate (nothing is executed either way).
+
+All verified against the live demo API, including a settled end-to-end
+conversion (FX quote → conversion → SETTLED) and the deposit lifecycle.
+
 ## [0.2.1] - 2026-07-02
 
 ### Fixed
@@ -80,7 +99,8 @@ patch releases never change behavior.
   loopback), credential redaction in `String()`/`GoString()`, typed errors
   for non-JSON responses, custom `http.Client` support without mutation.
 
-[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Cyvid7-Darus10/airwallex-go/releases/tag/v0.1.0

@@ -84,7 +84,7 @@ func buildRoutingTests(ctx context.Context, client *Client) []routingTest {
 		{"Transfers.Cancel", "", func() error { _, err := client.Transfers.Cancel(ctx, evilID); return err },
 			"POST", "/api/v1/transfers/" + escapedEvilID + "/cancel", false},
 		{"Transfers.Validate", "", func() error { _, err := client.Transfers.Validate(ctx, &TransferCreateParams{}); return err },
-			"POST", "/api/v1/transfers/validate", false},
+			"POST", "/api/v1/transfers/validate", true},
 		{"Transfers.ConfirmFunding", "", func() error {
 			_, err := client.Transfers.ConfirmFunding(ctx, "tra_1", &TransferConfirmFundingParams{FundingSourceID: "fs_1"})
 			return err

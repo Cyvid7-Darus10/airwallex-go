@@ -291,6 +291,9 @@ func TestErrorFieldMapping(t *testing.T) {
 		apiErr.Message != "transfer_amount is required" {
 		t.Fatalf("apiErr = %+v", apiErr)
 	}
+	if !strings.Contains(string(apiErr.Raw), `"code":"validation_error"`) {
+		t.Fatalf("apiErr.Raw missing body: %s", apiErr.Raw)
+	}
 	for _, want := range []string{"400", "validation_error", "transfer_amount", "req_abc123"} {
 		if !strings.Contains(apiErr.Error(), want) {
 			t.Errorf("Error() = %q, missing %q", apiErr.Error(), want)

@@ -20,7 +20,9 @@ type Deposit struct {
 	FundingSourceID       string         `json:"funding_source_id"`
 	GlobalAccountID       string         `json:"global_account_id"`
 	ProviderTransactionID string         `json:"provider_transaction_id"`
+	Type                  string         `json:"type"`
 	EstimatedSettledAt    string         `json:"estimated_settled_at"`
+	SettledAt             string         `json:"settled_at"`
 	CreatedAt             string         `json:"created_at"`
 }
 

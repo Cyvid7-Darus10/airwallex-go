@@ -27,6 +27,9 @@ type Error struct {
 	RequestID string
 	// Message is the human-readable error description.
 	Message string
+	// Raw is the full error response body. Validation failures carry an
+	// "errors" object here with per-field detail beyond Message.
+	Raw json.RawMessage
 }
 
 func (e *Error) Error() string {
@@ -82,6 +85,7 @@ func errorFromResponse(resp *http.Response, body []byte) *Error {
 	apiErr := &Error{
 		StatusCode: resp.StatusCode,
 		RequestID:  resp.Header.Get("x-request-id"),
+		Raw:        json.RawMessage(append([]byte(nil), body...)),
 	}
 	var parsed errorBody
 	if len(body) > 0 && json.Unmarshal(body, &parsed) == nil {
