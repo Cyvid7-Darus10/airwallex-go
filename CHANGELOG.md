@@ -9,6 +9,14 @@ patch releases never change behavior.
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-07-02
+
+### Fixed
+
+- CI: the coverage gate now measures the SDK packages only — the untested
+  example programs added in 0.2.4 diluted the total below the gate and
+  failed that release's pipeline. No library changes.
+
 ## [0.2.4] - 2026-07-02
 
 ### Added
@@ -121,7 +129,8 @@ conversion (FX quote → conversion → SETTLED) and the deposit lifecycle.
   loopback), credential redaction in `String()`/`GoString()`, typed errors
   for non-JSON responses, custom `http.Client` support without mutation.
 
-[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Cyvid7-Darus10/airwallex-go/compare/v0.2.1...v0.2.2
